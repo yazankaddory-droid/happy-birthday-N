@@ -90,9 +90,10 @@ body::after{
 
 .bubble{
   position:absolute;
-  top:8vh;
-  left:6vw;
-  max-width:min(80vw, 320px);
+  bottom:100%;
+  left:2%;
+  margin-bottom:18px;
+  max-width:min(65vw, 260px);
   background:linear-gradient(135deg, var(--blue), var(--blue-deep));
   color:var(--black);
   font-family:var(--font-display);
@@ -103,11 +104,25 @@ body::after{
   box-shadow:0 12px 30px rgba(63,197,255,.25);
   opacity:0;
   transform:translateY(-14px) scale(.92);
+  transform-origin: bottom left;
   transition: opacity .5s ease, transform .5s cubic-bezier(.2,1.4,.4,1);
+  pointer-events:auto;
 }
 .bubble.in{
   opacity:1;
   transform:translateY(0) scale(1);
+}
+.bubble::after{
+  content:"";
+  position:absolute;
+  top:100%;
+  left:34%;
+  transform:translateX(-50%);
+  width:0;
+  height:0;
+  border:13px solid transparent;
+  border-top-color: var(--blue-deep);
+  border-bottom:0;
 }
 .bubble-close{
   position:absolute;
