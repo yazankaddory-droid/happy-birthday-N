@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Happy Birthday Nyt!</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- LANDING SCREEN -->
+  <section id="landing" class="screen">
+    <div class="bubble" id="bubble">
+      Happy birthday!
+      <button class="bubble-close" id="bubbleClose" aria-label="Close">✕</button>
+    </div>
+
+    <div class="minion-wrap" id="minionWrap">
+      <img src="media/minion waving.png" alt="Minion waving hello" width="229" height="246">
+    </div>
+  </section>
+
+  <!-- SELECTION SCREEN -->
+  <section id="selectScreen" class="screen hidden">
+    <span class="eyebrow">Pick a moment</span>
+    <button class="select-box" id="selectBox"></button>
+  </section>
+
+  <!-- MODAL -->
+  <div id="modalOverlay" class="screen">
+    <div class="modal-box" id="modalBox">
+      <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+
+      <div class="video-pane">
+        <video id="birthdayVideo" playsinline></video>
+        <button class="play-btn" id="playBtn" aria-label="Play video"></button>
+      </div>
+
+      <div class="text-pane" id="textPane">
+        <div class="text-pane-inner" id="textPaneInner"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
