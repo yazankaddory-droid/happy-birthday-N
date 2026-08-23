@@ -19,6 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
   selectBox.textContent = SITE_CONFIG.boxLabel;
   textPaneInner.textContent = SITE_CONFIG.message;
 
+  // ---- debug helper: log *why* the video failed, instead of failing silently ----
+  video.addEventListener('error', () => {
+    const codes = {1:'aborted', 2:'network error', 3:'file is corrupt or an unsupported codec', 4:'file not found or format not supported by this browser'};
+    const reason = video.error ? (codes[video.error.code] || video.error.message) : 'unknown';
+    console.error('[birthday site] Video failed to load ("' + SITE_CONFIG.videoFile + '"): ' + reason);
+  });
+
   // ---- landing intro: minion slides up, then bubble pops in ----
   requestAnimationFrame(() => {
     setTimeout(() => minionWrap.classList.add('in'), 150);
@@ -45,10 +52,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ---- start playback: video slides left, box widens, text fades in ----
   playBtn.addEventListener('click', () => {
-    video.play();
-    playBtn.classList.add('hidden');
-    modalBox.classList.add('expanded');
-    setTimeout(() => textPane.classList.add('in'), 250);
+    const playPromise = video.play();
+
+    // only animate the layout once we know playback actually started
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        playBtn.classList.add('hidden');
+        modalBox.classList.add('expanded');
+        setTimeout(() => textPane.classList.add('in'), 250);
+      }).catch((err) => {
+        console.error('[birthday site] Playback was blocked or failed:', err);
+        alert("The video couldn't play. Open the browser console (F12 → Console tab) to see why — usually it's a filename mismatch or a video format this browser can't play.");
+      });
+    } else {
+      playBtn.classList.add('hidden');
+      modalBox.classList.add('expanded');
+      setTimeout(() => textPane.classList.add('in'), 250);
+    }
   });
 
   // ---- close modal ----
