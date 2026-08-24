@@ -26,12 +26,23 @@
       <h1>Edit the page</h1>
       <p class="admin-sub">Fill this in, hit generate, then paste the result into <code>js/config.js</code>.</p>
 
-      <label>Video folder
-        <input type="text" id="videoFolder" value="media/">
+      <label class="toggle-row">
+        <span>Show the video</span>
+        <input type="checkbox" id="videoEnabled" checked>
       </label>
 
-      <label>Video file name
-        <input type="text" id="videoName" value="birthday 2026.mp4">
+      <div id="videoFields">
+        <label>Video folder
+          <input type="text" id="videoFolder" value="media/">
+        </label>
+
+        <label>Video file name
+          <input type="text" id="videoName" value="birthday 2026.mp4">
+        </label>
+      </div>
+
+      <label id="placeholderField" class="hidden">Placeholder message (shown instead of the video)
+        <textarea id="placeholderMessage" rows="3">due to a problem on my site, i couldn't add a video :( but hopefully next time i can :)</textarea>
       </label>
 
       <label>Button text (selection screen)
