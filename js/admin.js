@@ -7,6 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const pwSubmit  = document.getElementById('pwSubmit');
   const pwError   = document.getElementById('pwError');
 
+  const videoEnabled = document.getElementById('videoEnabled');
+  const videoFields    = document.getElementById('videoFields');
+  const placeholderField = document.getElementById('placeholderField');
+  const placeholderMessage = document.getElementById('placeholderMessage');
   const videoFolder = document.getElementById('videoFolder');
   const videoName    = document.getElementById('videoName');
   const boxLabel      = document.getElementById('boxLabel');
@@ -18,6 +22,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const copyBtn          = document.getElementById('copyBtn');
   const copyNote          = document.getElementById('copyNote');
 
+  // show either the video fields or the placeholder field, never both
+  function syncVideoToggleUI(){
+    if (videoEnabled.checked) {
+      videoFields.classList.remove('hidden');
+      placeholderField.classList.add('hidden');
+    } else {
+      videoFields.classList.add('hidden');
+      placeholderField.classList.remove('hidden');
+    }
+  }
+  videoEnabled.addEventListener('change', syncVideoToggleUI);
+
   // prefill the form with whatever config.js currently has
   if (typeof SITE_CONFIG !== 'undefined') {
     const parts = SITE_CONFIG.videoFile.split('/');
@@ -25,7 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
     videoFolder.value = parts.length ? parts.join('/') + '/' : '';
     boxLabel.value = SITE_CONFIG.boxLabel;
     scriptText.value = SITE_CONFIG.message;
+    videoEnabled.checked = SITE_CONFIG.videoEnabled !== false;
+    if (SITE_CONFIG.placeholderMessage) placeholderMessage.value = SITE_CONFIG.placeholderMessage;
   }
+  syncVideoToggleUI();
 
   function unlock(){
     if (pwInput.value === PASSWORD) {
@@ -57,7 +76,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const code =
 `const SITE_CONFIG = {
+  videoEnabled: ${videoEnabled.checked},
   videoFile: "${escapeForString(videoPath)}",
+  placeholderMessage: \`${escapeForTemplate(placeholderMessage.value.trim())}\`,
   boxLabel: "${escapeForString(boxLabel.value.trim())}",
   message: \`${escapeForTemplate(scriptText.value)}\`
 };`;
