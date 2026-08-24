@@ -45,6 +45,24 @@ body::before, body::after{ opacity:.14; }
   font-weight:500;
 }
 
+.toggle-row{
+  display:flex !important;
+  align-items:center;
+  justify-content:space-between;
+  gap:1rem;
+}
+.toggle-row span{
+  font-size:.9rem;
+  color:var(--white);
+  font-weight:500;
+}
+.toggle-row input[type="checkbox"]{
+  width:20px;
+  height:20px;
+  accent-color:var(--blue);
+  cursor:pointer;
+}
+
 .admin-card input,
 .admin-card textarea{
   width:100%;
