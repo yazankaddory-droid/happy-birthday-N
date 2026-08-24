@@ -1,354 +1,98 @@
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Poppins:wght@400;500;600&display=swap');
+document.addEventListener('DOMContentLoaded', () => {
+  const minionWrap   = document.getElementById('minionWrap');
+  const bubble        = document.getElementById('bubble');
+  const bubbleClose   = document.getElementById('bubbleClose');
+  const landing       = document.getElementById('landing');
+  const selectScreen  = document.getElementById('selectScreen');
+  const selectBox     = document.getElementById('selectBox');
 
-:root{
-  --black: #07070a;
-  --black-soft: #0f0f14;
-  --blue: #3fc5ff;
-  --blue-deep: #1c6fb8;
-  --pink: #ff5fa8;
-  --pink-deep: #c23a80;
-  --white: #f5f6fa;
-  --font-display: 'Baloo 2', cursive;
-  --font-body: 'Poppins', sans-serif;
-}
+  const modalOverlay  = document.getElementById('modalOverlay');
+  const modalBox      = document.getElementById('modalBox');
+  const modalClose    = document.getElementById('modalClose');
+  const video          = document.getElementById('birthdayVideo');
+  const playBtn        = document.getElementById('playBtn');
+  const textPane        = document.getElementById('textPane');
+  const textPaneInner   = document.getElementById('textPaneInner');
 
-*{ box-sizing:border-box; }
+  // ---- pull content from config.js ----
+  video.src = SITE_CONFIG.videoFile;
+  selectBox.textContent = SITE_CONFIG.boxLabel;
+  textPaneInner.textContent = SITE_CONFIG.message;
 
-html,body{
-  margin:0;
-  padding:0;
-  height:100%;
-  background:var(--black);
-  color:var(--white);
-  font-family:var(--font-body);
-  overflow-x:hidden;
-}
+  // ---- debug helper: log *why* the video failed, and recover the UI instead of getting stuck ----
+  video.addEventListener('error', () => {
+    const codes = {1:'aborted', 2:'network error', 3:'file is corrupt or an unsupported codec', 4:'file not found or format not supported by this browser'};
+    const reason = video.error ? (codes[video.error.code] || video.error.message) : 'unknown';
+    console.error('[birthday site] Video failed ("' + SITE_CONFIG.videoFile + '"): ' + reason);
 
-body{
-  min-height:100vh;
-  position:relative;
-}
+    // snap the UI back to the play button instead of leaving a frozen, stuck box
+    modalBox.classList.remove('expanded');
+    playBtn.classList.remove('hidden');
+    textPane.classList.remove('in');
+  });
 
-/* ambient glow */
-body::before,
-body::after{
-  content:"";
-  position:fixed;
-  width:60vw;
-  height:60vw;
-  border-radius:50%;
-  filter:blur(120px);
-  opacity:.22;
-  z-index:0;
-  pointer-events:none;
-}
-body::before{
-  background:var(--blue);
-  top:-20vw; left:-15vw;
-}
-body::after{
-  background:var(--pink);
-  bottom:-25vw; right:-15vw;
-}
+  // ---- landing intro: minion slides up, then bubble pops in ----
+  requestAnimationFrame(() => {
+    setTimeout(() => minionWrap.classList.add('in'), 150);
+    setTimeout(() => bubble.classList.add('in'), 950);
+  });
 
-.screen{
-  position:fixed;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:1;
-}
+  // ---- closing the bubble sends the minion back down and reveals the picker ----
+  bubbleClose.addEventListener('click', () => {
+    bubble.classList.remove('in');
+    minionWrap.classList.remove('in');
 
-.hidden{ display:none !important; }
+    setTimeout(() => {
+      landing.classList.add('hidden');
+      selectScreen.classList.remove('hidden');
+      requestAnimationFrame(() => selectScreen.classList.add('in'));
+    }, 850);
+  });
 
-/* ---------- Landing screen ---------- */
-#landing{
-  flex-direction:column;
-}
+  // ---- open the modal ----
+  selectBox.addEventListener('click', () => {
+    resetModal();
+    modalOverlay.classList.add('show');
+  });
 
-.minion-wrap{
-  position:absolute;
-  bottom:0;
-  left:50%;
-  width:min(70vw, 420px);
-  transform:translate(-50%, 140%);
-  opacity:0;
-  transition: transform 1.05s cubic-bezier(.16,1,.3,1), opacity .7s ease;
-  pointer-events:none;
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-.minion-wrap.in{
-  transform:translate(-50%, 6%);
-  opacity:1;
-}
-.minion-wrap img{
-  width:100%;
-  height:auto;
-  display:block;
-  filter: drop-shadow(0 20px 40px rgba(0,0,0,.6));
-}
+  // ---- start playback: video slides left, box widens, text fades in ----
+  playBtn.addEventListener('click', () => {
+    const playPromise = video.play();
 
-.bubble{
-  position:relative;
-  z-index:3;
-  margin:0 0 18px 4%;
-  max-width:min(65vw, 260px);
-  background:linear-gradient(135deg, var(--blue), var(--blue-deep));
-  color:var(--black);
-  font-family:var(--font-display);
-  font-weight:700;
-  font-size:clamp(1.1rem, 3vw, 1.6rem);
-  padding:1.1rem 1.5rem;
-  border-radius:26px 26px 26px 6px;
-  box-shadow:0 12px 30px rgba(63,197,255,.25);
-  opacity:0;
-  transform:scale(.92);
-  transition: opacity .5s ease, transform .5s cubic-bezier(.2,1.4,.4,1);
-  pointer-events:none;
-}
-.bubble.in{
-  opacity:1;
-  transform:scale(1);
-  pointer-events:auto;
-}
-.bubble::after{
-  content:"";
-  position:absolute;
-  top:100%;
-  left:34%;
-  transform:translateX(-50%);
-  width:0;
-  height:0;
-  border:13px solid transparent;
-  border-top-color: var(--blue-deep);
-  border-bottom:0;
-}
-.bubble-close{
-  position:absolute;
-  top:-12px;
-  left:-12px;
-  z-index:4;
-  width:30px;
-  height:30px;
-  border-radius:50%;
-  border:none;
-  background:var(--pink);
-  color:var(--white);
-  font-family:var(--font-body);
-  font-size:1rem;
-  font-weight:600;
-  line-height:1;
-  cursor:pointer;
-  box-shadow:0 6px 14px rgba(255,95,168,.4);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition: transform .2s ease, background .2s ease;
-  pointer-events:auto;
-}
-.bubble-close:hover{
-  transform:scale(1.1);
-  background:var(--pink-deep);
-}
+    // only animate the layout once we know playback actually started
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        playBtn.classList.add('hidden');
+        modalBox.classList.add('expanded');
+        setTimeout(() => textPane.classList.add('in'), 250);
+      }).catch((err) => {
+        console.error('[birthday site] Playback was blocked or failed:', err);
+        alert("The video couldn't play. Open the browser console (F12 → Console tab) to see why — usually it's a filename mismatch or a video format this browser can't play.");
+      });
+    } else {
+      // older browsers that don't return a promise from play()
+      playBtn.classList.add('hidden');
+      modalBox.classList.add('expanded');
+      setTimeout(() => textPane.classList.add('in'), 250);
+    }
+  });
 
-/* ---------- Select screen ---------- */
-#selectScreen{
-  flex-direction:column;
-  gap:1.4rem;
-  opacity:0;
-  transform:translateY(24px);
-  pointer-events:none;
-  transition: opacity .6s ease, transform .6s ease;
-}
-#selectScreen.in{
-  opacity:1;
-  transform:translateY(0);
-  pointer-events:auto;
-}
+  // ---- close modal ----
+  modalClose.addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) closeModal();
+  });
 
-.eyebrow{
-  font-family:var(--font-body);
-  letter-spacing:.3em;
-  text-transform:uppercase;
-  font-size:.7rem;
-  color:var(--blue);
-  opacity:.8;
-}
-
-.select-box{
-  font-family:var(--font-display);
-  font-weight:700;
-  font-size:clamp(1.1rem, 3.2vw, 1.5rem);
-  color:var(--white);
-  background:var(--black-soft);
-  border:2px solid transparent;
-  border-radius:18px;
-  padding:1.4rem 2.2rem;
-  cursor:pointer;
-  position:relative;
-  background-clip:padding-box;
-  transition: transform .25s cubic-bezier(.2,1.4,.4,1), box-shadow .25s ease;
-}
-.select-box::before{
-  content:"";
-  position:absolute;
-  inset:-2px;
-  border-radius:18px;
-  padding:2px;
-  background:linear-gradient(135deg, var(--blue), var(--pink));
-  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  z-index:-1;
-}
-.select-box:hover{
-  transform:translateY(-4px);
-  box-shadow:0 14px 30px rgba(255,95,168,.25);
-}
-
-/* ---------- Modal ---------- */
-#modalOverlay{
-  background:rgba(2,2,4,.78);
-  backdrop-filter: blur(6px);
-  z-index:5;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .3s ease;
-}
-#modalOverlay.show{
-  opacity:1;
-  pointer-events:auto;
-}
-
-.modal-box{
-  position:relative;
-  width:min(92vw, 480px);
-  background:var(--black-soft);
-  border-radius:22px;
-  padding:1.4rem;
-  display:flex;
-  flex-direction:column;
-  gap:1rem;
-  box-shadow:0 30px 80px rgba(0,0,0,.6);
-  transition: width .55s cubic-bezier(.16,1,.3,1), max-width .55s cubic-bezier(.16,1,.3,1);
-}
-.modal-box.expanded{
-  width:min(94vw, 920px);
-  flex-direction:row;
-  align-items:stretch;
-}
-
-.modal-close{
-  position:absolute;
-  top:-14px;
-  right:-14px;
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  border:none;
-  background:var(--blue);
-  color:var(--black);
-  font-weight:700;
-  font-size:1.05rem;
-  cursor:pointer;
-  box-shadow:0 8px 18px rgba(63,197,255,.4);
-  transition: transform .2s ease, background .2s ease;
-  z-index:2;
-}
-.modal-close:hover{
-  transform:scale(1.1);
-  background:var(--blue-deep);
-  color:var(--white);
-}
-
-.video-pane{
-  position:relative;
-  flex:1 1 auto;
-  border-radius:16px;
-  overflow:hidden;
-  background:#000;
-  aspect-ratio:16/9;
-  transition: flex-basis .55s cubic-bezier(.16,1,.3,1);
-}
-.modal-box.expanded .video-pane{
-  flex:0 0 46%;
-}
-
-.video-pane video{
-  width:100%;
-  height:100%;
-  display:block;
-  object-fit:cover;
-}
-
-.play-btn{
-  position:absolute;
-  inset:0;
-  margin:auto;
-  width:64px;
-  height:64px;
-  border-radius:50%;
-  border:none;
-  background:linear-gradient(135deg, var(--pink), var(--blue));
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  box-shadow:0 10px 26px rgba(0,0,0,.45);
-  transition: transform .2s ease, opacity .25s ease;
-}
-.play-btn:hover{ transform:scale(1.08); }
-.play-btn.hidden{
-  opacity:0;
-  pointer-events:none;
-  transform:scale(.8);
-}
-.play-btn::after{
-  content:"";
-  border-style:solid;
-  border-width:11px 0 11px 18px;
-  border-color:transparent transparent transparent var(--black);
-  margin-left:4px;
-}
-
-.text-pane{
-  flex:0 0 0%;
-  width:0;
-  overflow:hidden;
-  opacity:0;
-  transform:translateX(-16px);
-  transition: opacity .5s ease .15s, transform .5s ease .15s, flex-basis .55s cubic-bezier(.16,1,.3,1), width .55s cubic-bezier(.16,1,.3,1);
-}
-.modal-box.expanded .text-pane{
-  flex:1 1 54%;
-  width:auto;
-}
-.text-pane.in{
-  opacity:1;
-  transform:translateX(0);
-}
-.text-pane-inner{
-  max-height:min(60vh, 420px);
-  overflow-y:auto;
-  padding-right:.5rem;
-  font-size:.95rem;
-  line-height:1.6;
-  white-space:pre-line;
-}
-.text-pane-inner::-webkit-scrollbar{ width:6px; }
-.text-pane-inner::-webkit-scrollbar-thumb{ background:var(--blue-deep); border-radius:3px; }
-
-/* responsive: stack on narrow screens */
-@media (max-width: 640px){
-  .modal-box.expanded{
-    flex-direction:column;
-    width:min(94vw, 480px);
-    max-height:88vh;
-    overflow-y:auto;
+  function closeModal(){
+    modalOverlay.classList.remove('show');
+    video.pause();
   }
-  .modal-box.expanded .video-pane{ flex-basis:auto; }
-  .text-pane{ width:auto; }
-}
+
+  function resetModal(){
+    video.pause();
+    video.load();          // fully reload the video element so a previous error doesn't stick around
+    modalBox.classList.remove('expanded');
+    playBtn.classList.remove('hidden');
+    textPane.classList.remove('in');
+  }
+});
