@@ -10,8 +10,15 @@
 */
 
 const SITE_CONFIG = {
-  // Folder + filename of the video, relative to index.html
+  // Set to false to hide the video entirely and show a placeholder instead.
+  // Toggle this from the admin page, or just edit it here.
+  videoEnabled: true,
+
+  // Folder + filename of the video, relative to index.html (ignored when videoEnabled is false)
   videoFile: "media/birthday 2026.mp4",
+
+  // Shown in the video's spot when videoEnabled is false
+  placeholderMessage: "due to a problem on my site, i couldn't add a video :( but hopefully next time i can :)",
 
   // Text on the clickable box on the selection screen
   boxLabel: "Birthday of 2026 To Nyt",
