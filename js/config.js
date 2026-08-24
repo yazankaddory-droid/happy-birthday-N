@@ -10,20 +10,10 @@
 */
 
 const SITE_CONFIG = {
-  // Set to false to hide the video entirely and show a placeholder instead.
-  // Toggle this from the admin page, or just edit it here.
-  videoEnabled: true,
-
-  // Folder + filename of the video, relative to index.html (ignored when videoEnabled is false)
+  videoEnabled: false,
   videoFile: "media/birthday 2026.mp4",
-
-  // Shown in the video's spot when videoEnabled is false
-  placeholderMessage: "due to a problem on my site, i couldn't add a video :( but hopefully next time i can :)",
-
-  // Text on the clickable box on the selection screen
+  placeholderMessage: `due to a problem on my site, i couldn't add a video :( but hopefully next time i can :)`,
   boxLabel: "Birthday of 2026 To Nyt",
-
-  // The message that appears once the video is playing
   message: `Haiiii. Happy birthday Nyt! welcome to being 17 years old! You are an amazing friend and i wish the best for you no matter what.
 
 I know we haven't been talking much recently but i want you to know that i still love and care for you. You are still one of my favorite people. Even though I've never truly vented to you in the past, but thank you for always being there for me.
