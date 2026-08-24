@@ -10,20 +10,40 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalBox      = document.getElementById('modalBox');
   const modalClose    = document.getElementById('modalClose');
   const video          = document.getElementById('birthdayVideo');
+  const videoPlaceholder = document.getElementById('videoPlaceholder');
+  const placeholderText  = document.getElementById('placeholderText');
   const playBtn        = document.getElementById('playBtn');
   const textPane        = document.getElementById('textPane');
   const textPaneInner   = document.getElementById('textPaneInner');
 
+  const videoEnabled = SITE_CONFIG.videoEnabled !== false; // treat missing/undefined as "on"
+
   // ---- pull content from config.js ----
-  video.src = SITE_CONFIG.videoFile;
   selectBox.textContent = SITE_CONFIG.boxLabel;
   textPaneInner.textContent = SITE_CONFIG.message;
 
-  // ---- debug helper: log *why* the video failed, instead of failing silently ----
+  if (videoEnabled) {
+    video.src = SITE_CONFIG.videoFile;
+  } else {
+    // no video: show the placeholder rectangle instead, same size/spot the video would occupy
+    video.classList.add('hidden');
+    videoPlaceholder.classList.remove('hidden');
+    placeholderText.textContent = SITE_CONFIG.placeholderMessage || "";
+    playBtn.classList.add('no-video');
+    playBtn.setAttribute('aria-label', 'Continue');
+  }
+
+  // ---- debug helper: log *why* the video failed, and recover the UI instead of getting stuck ----
   video.addEventListener('error', () => {
+    if (!videoEnabled) return; // no real video loaded in this mode, nothing to report
     const codes = {1:'aborted', 2:'network error', 3:'file is corrupt or an unsupported codec', 4:'file not found or format not supported by this browser'};
     const reason = video.error ? (codes[video.error.code] || video.error.message) : 'unknown';
-    console.error('[birthday site] Video failed to load ("' + SITE_CONFIG.videoFile + '"): ' + reason);
+    console.error('[birthday site] Video failed ("' + SITE_CONFIG.videoFile + '"): ' + reason);
+
+    // snap the UI back to the play button instead of leaving a frozen, stuck box
+    modalBox.classList.remove('expanded');
+    playBtn.classList.remove('hidden');
+    textPane.classList.remove('in');
   });
 
   // ---- landing intro: minion slides up, then bubble pops in ----
@@ -50,8 +70,16 @@ document.addEventListener('DOMContentLoaded', () => {
     modalOverlay.classList.add('show');
   });
 
-  // ---- start playback: video slides left, box widens, text fades in ----
+  // ---- start: video slides left (or placeholder does), box widens, text fades in ----
   playBtn.addEventListener('click', () => {
+    if (!videoEnabled) {
+      // no video to play — just run the same reveal animation
+      playBtn.classList.add('hidden');
+      modalBox.classList.add('expanded');
+      setTimeout(() => textPane.classList.add('in'), 250);
+      return;
+    }
+
     const playPromise = video.play();
 
     // only animate the layout once we know playback actually started
@@ -65,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert("The video couldn't play. Open the browser console (F12 → Console tab) to see why — usually it's a filename mismatch or a video format this browser can't play.");
       });
     } else {
+      // older browsers that don't return a promise from play()
       playBtn.classList.add('hidden');
       modalBox.classList.add('expanded');
       setTimeout(() => textPane.classList.add('in'), 250);
@@ -79,12 +108,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function closeModal(){
     modalOverlay.classList.remove('show');
-    video.pause();
+    if (videoEnabled) video.pause();
   }
 
   function resetModal(){
-    video.pause();
-    video.currentTime = 0;
+    if (videoEnabled) {
+      video.pause();
+      video.load();          // fully reload the video element so a previous error doesn't stick around
+    }
     modalBox.classList.remove('expanded');
     playBtn.classList.remove('hidden');
     textPane.classList.remove('in');
