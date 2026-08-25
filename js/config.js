@@ -24,6 +24,5 @@ You never deserved any of the bad things that have happened to you and every day
 
 I wish i could give you the biggest and most heart felt hug ever but sadly i can't sooooo, just know i want to then haha.
 
-Welcome to being 17 years old. Happy birthday queen! Just had to add a little gayness there.
-`
+Welcome to being 17 years old. Happy birthday queen! Just had to add a little gayness there. (this is just to make the line on top of this one visible on mobile)`
 };
