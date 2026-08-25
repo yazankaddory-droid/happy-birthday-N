@@ -16,7 +16,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const textPane        = document.getElementById('textPane');
   const textPaneInner   = document.getElementById('textPaneInner');
 
-  const videoEnabled = SITE_CONFIG.videoEnabled !== false; // treat missing/undefined as "on"
+  const videoEnabled = !isVideoOff(SITE_CONFIG.videoEnabled); // tolerant of true/false, "true"/"false", 1/0, etc.
+
+  function isVideoOff(val){
+    if (val === false || val === 0) return true;
+    if (typeof val === 'string') {
+      const v = val.trim().toLowerCase();
+      return v === 'false' || v === 'no' || v === 'off' || v === '0';
+    }
+    return false;
+  }
 
   // ---- pull content from config.js ----
   selectBox.textContent = SITE_CONFIG.boxLabel;
