@@ -12,7 +12,7 @@
 const SITE_CONFIG = {
   videoEnabled: false,
   videoFile: "",
-  placeholderMessage: `due to a problem on my site, i couldn't add a video :( but hopefully next time i can :)`,
+  placeholderMessage: `due to a problem on my side, i couldn't add a video :( but hopefully next time i can :)`,
   boxLabel: "Birthday of 2026 To Nyt",
   message: `Haiiii. Happy birthday Nyt! welcome to being 17 years old! You are an amazing friend and i wish the best for you no matter what.
 
